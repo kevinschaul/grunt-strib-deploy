@@ -16,10 +16,16 @@ module.exports = function(grunt) {
       all: [
         'Gruntfile.js',
         'tasks/*.js',
+        'test/*.js'
       ],
       options: {
         jshintrc: '.jshintrc',
       },
+    },
+    mochaTest: {
+      test: {
+        src: ['test/test.js']
+      }
     },
 
     // Configuration to be run (and then tested).
@@ -41,8 +47,9 @@ module.exports = function(grunt) {
 
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-mocha-test');
 
   // By default, lint and run all tests.
-  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'mochaTest']);
 
 };
