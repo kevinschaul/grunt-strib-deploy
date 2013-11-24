@@ -1,5 +1,5 @@
 {
-  "name": "grunt-deploy",
+  "name": "grunt-strib-deploy",
   "description": "Deploy to apps.startribune.com",
   "version": "0.0.1",
   "homepage": "https://github.com/kevinschaul/strib-deploy",
