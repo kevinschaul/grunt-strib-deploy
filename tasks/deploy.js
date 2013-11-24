@@ -20,38 +20,30 @@ module.exports = function(grunt) {
       branch: 'master'
     });
 
+    // Require `dateSlug` option
     if (!options.dateSlug) {
       grunt.log.error('dateSlug option is required.');
       return false;
     }
 
-    /*
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
-        } else {
-          return true;
-        }
-      }).map(function(filepath) {
-        // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
+    // TODO
+    // Ensure we are on correct git branch
 
-      // Handle options.
-      src += options.punctuation;
+    // TODO
+    // Ensure all changes have been committed to git
 
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
+    // TODO
+    // Ensure appsSvnPath exists
 
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
-    });
-   */
+    // TODO
+    // Ensure local svn repository is up to date
+
+    // TODO
+    // Copy latest project files to local svn repository
+
+    // TODO
+    // Commit to svn repository using slug + most recent git message
   });
 
 };
+
