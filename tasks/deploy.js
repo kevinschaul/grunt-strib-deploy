@@ -13,13 +13,19 @@ module.exports = function(grunt) {
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
-  grunt.registerMultiTask('deploy', 'Deploy to apps.startribune.com', function() {
+  grunt.registerTask('deploy', 'Deploy to apps.startribune.com', function() {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      punctuation: '.',
-      separator: ', '
+      appsSvnPath: '../apps',
+      branch: 'master'
     });
 
+    if (!options.dateSlug) {
+      grunt.log.error('dateSlug option is required.');
+      return false;
+    }
+
+    /*
     // Iterate over all specified file groups.
     this.files.forEach(function(f) {
       // Concat specified files.
@@ -45,6 +51,7 @@ module.exports = function(grunt) {
       // Print a success message.
       grunt.log.writeln('File "' + f.dest + '" created.');
     });
+   */
   });
 
 };
