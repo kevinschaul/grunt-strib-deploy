@@ -129,7 +129,7 @@ module.exports = function(grunt) {
     var not_error = true;
 
     var source = 'public';
-    var dest = path.join(appsSvnPath, 'news', dateSlug);
+    var dest = path.join(appsSvnPath, 'htdocs', 'news', dateSlug);
 
     ncp(source, dest, function(error) {
 
