@@ -12,6 +12,8 @@ module.exports = function(grunt) {
 
   var exec = require('child_process').exec;
   var fs = require('fs');
+  var ncp = require('ncp').ncp;
+  var path = require('path');
 
   grunt.registerTask('deploy', 'Deploy to apps.startribune.com', function() {
     var done = this.async();
@@ -32,7 +34,6 @@ module.exports = function(grunt) {
     }
 
     // TODO Get out of callback hell
-    // TODO Return if there is an error (don't continue execution)
 
     // Ensure we are on correct git branch
     ensureCorrectGitBranch(cwd, options.branch, function(not_error) {
@@ -49,12 +50,15 @@ module.exports = function(grunt) {
           // TODO
           // Ensure local svn repository is up to date
 
-          // TODO
           // Copy latest project files to local svn repository
+          copyLocalToSvn(cwd, options.appsSvnPath, options.dateSlug,
+              function(not_error) {
+            if (!not_error) done(not_error);
 
-          // TODO
-          // Commit to svn repository using slug + most recent git message
-          done(not_error);
+            // TODO
+            // Commit to svn repository using slug + most recent git message
+            done(not_error);
+          });
         });
       });
     });
@@ -121,8 +125,24 @@ module.exports = function(grunt) {
     });
   }
 
-  var copyLocalToSvn = function(cwd, appsSvnPath, callback) {
+  var copyLocalToSvn = function(cwd, appsSvnPath, dateSlug, callback) {
+    var not_error = true;
 
+    var source = 'public';
+    var dest = path.join(appsSvnPath, 'news', dateSlug);
+
+    ncp(source, dest, function(error) {
+
+      if (error) {
+        grunt.log.error('Error copying project to svn:');
+        grunt.log.error(error);
+        not_error = false;
+      }
+
+      if (callback) {
+        callback(not_error);
+      }
+    });
   }
 
   var getCurrentBranch = function(stdout) {
