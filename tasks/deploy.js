@@ -32,15 +32,19 @@ module.exports = function(grunt) {
     }
 
     // TODO Get out of callback hell
+    // TODO Return if there is an error (don't continue execution)
 
     // Ensure we are on correct git branch
     ensureCorrectGitBranch(cwd, options.branch, function(not_error) {
+      if (!not_error) done(not_error);
 
       // Ensure all changes have been committed to git
       ensureNoPendingChanges(cwd, function(not_error) {
+        if (!not_error) done(not_error);
 
         // Ensure appsSvnPath exists
         ensureAppsSvnPathExists(cwd, options.appsSvnPath, function(not_error) {
+          if (!not_error) done(not_error);
 
           // TODO
           // Ensure local svn repository is up to date
@@ -115,6 +119,10 @@ module.exports = function(grunt) {
         callback(not_error);
       }
     });
+  }
+
+  var copyLocalToSvn = function(cwd, appsSvnPath, callback) {
+
   }
 
   var getCurrentBranch = function(stdout) {
