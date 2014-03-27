@@ -57,7 +57,12 @@ module.exports = function(grunt) {
 
             // TODO
             // Commit to svn repository using slug + most recent git message
-            done(not_error);
+            // To get most recent git message: ` git log -n 1 --pretty=format:%s`
+            commitSvn(cwd, options.appsSvnPath, options.dateSlug, function(not_error) {
+              if (!not_error) done(not_error);
+
+              done(not_error);
+            });
           });
         });
       });
@@ -145,6 +150,32 @@ module.exports = function(grunt) {
     });
   }
 
+  // To get most recent git message: ` git log -n 1 --pretty=format:%s`
+  var commitSvn = function(cwd, options.appsSvnPath, options.dateSlug,
+      callback) {
+    var not_error = true;
+
+    var child = exec('git log -n 1 --pretty=format:%s',
+          function(error, stdout, stderr) {
+      if (error) {
+        grunt.log.error(error);
+        not_error = false;
+      }
+
+      var message = stdout;
+      if (message) {
+        // TODO Commit
+      } else {
+        grunt.log.error('Could not find the latest commit message');
+        not_error = false;
+      }
+
+      if (callback) {
+        callback(not_error);
+      }
+    });
+  }
+
   var getCurrentBranch = function(stdout) {
     var re = /\* ([\S]+)/;
     var matches = re.exec(stdout);
@@ -153,6 +184,5 @@ module.exports = function(grunt) {
       return this_branch;
     }
   }
-
 };
 
