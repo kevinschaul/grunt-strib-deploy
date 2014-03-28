@@ -10,6 +10,7 @@
 
 module.exports = function(grunt) {
 
+  var async = require('async');
   var exec = require('child_process').exec;
   var fs = require('fs');
   var ncp = require('ncp').ncp;
@@ -24,19 +25,36 @@ module.exports = function(grunt) {
       branch: 'master'
     });
 
-    var branch = options.branch;
-    var cwd = process.cwd();
-
     // Require `dateSlug` option
     if (!options.dateSlug) {
       grunt.log.error('dateSlug option is required.');
       return false;
     }
 
-    // TODO Get out of callback hell
+    var branch = options.branch;
+    var cwd = process.cwd();
 
+    async.series([
+        function(cb) {
+          ensureCorrectGitBranch(cb, branch);
+        },
+        function(cb) {
+          ensureNoPendingChanges(cb);
+        },
+        function(cb) {
+          ensureAppsSvnPathExists(cb, options.appsSvnPath);
+        },
+        function(cb) {
+          copyLocalToSvn(cb, options.appsSvnPath, options.dateSlug);
+        }
+      ], function(err, results) {
+
+    });
+
+    /*
     // Ensure we are on correct git branch
     ensureCorrectGitBranch(cwd, options.branch, function(not_error) {
+      not_error = true;
       if (!not_error) done(not_error);
 
       // Ensure all changes have been committed to git
@@ -67,91 +85,75 @@ module.exports = function(grunt) {
         });
       });
     });
+    */
   });
 
-  var ensureCorrectGitBranch = function(cwd, branch, callback) {
-    var not_error = true;
-
+  var ensureCorrectGitBranch = function(cb, branch) {
     var child = exec('git branch', function(error, stdout, stderr) {
       if (error) {
         grunt.log.error(error);
-        not_error = false;
+        cb(1);
       }
 
       if (stdout) {
         var this_branch = getCurrentBranch(stdout);
-        grunt.verbose.write('Current branch is `' + this_branch + '`');
+        grunt.verbose.write('Current branch is `' + this_branch + '`\n');
 
         if (this_branch !== branch) {
-          grunt.log.error('Must deploy from `' + branch + '` branch.');
-          grunt.log.error('(Current branch is `' + this_branch + '`)');
-          not_error = false;
+          grunt.log.error('Must deploy from `' + branch + '` branch.\n');
+          grunt.log.error('(Current branch is `' + this_branch + '`)\n');
+          cb(1);
         }
-      }
 
-      if (callback) {
-        callback(not_error);
+        cb();
       }
     });
   }
 
-  var ensureNoPendingChanges = function(cwd, callback) {
-    var not_error = true;
-
+  var ensureNoPendingChanges = function(cb, callback) {
     var child = exec('git status -s', function(error, stdout, stderr) {
       if (error) {
         grunt.log.error(error);
-        not_error = false;
+        cb(1);
       }
 
       if (stdout) {
-        grunt.log.error('Please commit your pending changes.');
-        not_error = false;
+        grunt.log.error('Please commit your pending changes.\n');
+        cb(1);
       }
 
-      if (callback) {
-        callback(not_error);
-      }
+      cb();
     });
   }
 
-  var ensureAppsSvnPathExists = function(cwd, appsSvnPath, callback) {
-    var not_error = true;
-
+  var ensureAppsSvnPathExists = function(cb, appsSvnPath) {
     fs.exists(appsSvnPath, function(exists) {
       if (!exists) {
-        grunt.log.error('Please correct your `appsSvnPath`.');
-        not_error = false;
+        grunt.log.error('Please correct your `appsSvnPath`.\n');
+        cb(1);
       }
 
-      if (callback) {
-        callback(not_error);
-      }
+      cb();
     });
   }
 
-  var copyLocalToSvn = function(cwd, appsSvnPath, dateSlug, callback) {
-    var not_error = true;
-
+  var copyLocalToSvn = function(cb, appsSvnPath, dateSlug) {
     var source = 'public';
     var dest = path.join(appsSvnPath, 'htdocs', 'news', dateSlug);
 
     ncp(source, dest, function(error) {
-
       if (error) {
-        grunt.log.error('Error copying project to svn:');
+        grunt.log.error('Error copying project to svn:\n');
         grunt.log.error(error);
-        not_error = false;
+        cb(1);
       }
 
-      if (callback) {
-        callback(not_error);
-      }
+      cb();
     });
   }
 
   // To get most recent git message: ` git log -n 1 --pretty=format:%s`
-  var commitSvn = function(cwd, options.appsSvnPath, options.dateSlug,
+  var commitSvn = function(cwd, appsSvnPath, dateSlug,
       callback) {
     var not_error = true;
 
